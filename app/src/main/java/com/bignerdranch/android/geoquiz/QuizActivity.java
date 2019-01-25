@@ -44,32 +44,34 @@ public class QuizActivity extends AppCompatActivity {
         setContentView(R.layout.activity_quiz);
 
         mQuestionTextView = (TextView) findViewById(R.id.question_text_view);
-        int question = mQuestionBank[mCurrentIndex].getTextResId();
-        mQuestionTextView.setText(question);
+
+        mNextButton = (Button) findViewById(R.id.next_button);
+        mNextButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mCurrentIndex = (mCurrentIndex + 1) % mQuestionBank.length;
+
+                updateQuestion();
+            }
+        });
 
         mTrueButton = (Button) findViewById(R.id.true_button);
         mTrueButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast t = Toast.makeText(QuizActivity.this,
-                        R.string.correct_toast,
-                        Toast.LENGTH_SHORT);
-                t.setGravity(TOP, 0, 0);
-                t.show();
+                sendToastMessage(checkAnswer(true));
+
             }
         });
         mFalseButton = (Button) findViewById(R.id.false_button);
         mFalseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                Toast t = Toast.makeText(QuizActivity.this,
-                        R.string.incorrect_toast,
-                        Toast.LENGTH_SHORT);
-                t.setGravity(TOP, 0, 0);
-                t.show();
+               sendToastMessage(checkAnswer(false));
             }
         });
+
+        updateQuestion();
     }
 
     @Override
@@ -144,4 +146,29 @@ public class QuizActivity extends AppCompatActivity {
     };
 
     private int mCurrentIndex = 0;
+
+    private void updateQuestion(){
+        final int question = mQuestionBank[mCurrentIndex].getTextResId();
+        mQuestionTextView.setText(question);
+    }
+
+    private void sendToastMessage(int msg){
+        Toast t = Toast.makeText(QuizActivity.this,
+                msg,
+                Toast.LENGTH_SHORT);
+        t.setGravity(TOP, 0, 0);
+        t.show();
+    }
+
+    private int checkAnswer(boolean userSChoice){
+        boolean correctAnswer = mQuestionBank[mCurrentIndex].isAnswerTrue();
+        int responseMsgId;
+        if(userSChoice == correctAnswer){
+            responseMsgId = R.string.correct_toast;
+        }else{
+            responseMsgId = R.string.incorrect_toast;
+        }
+
+        return responseMsgId;
+    }
 }
